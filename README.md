@@ -1,209 +1,153 @@
 # Rehearsal Scheduler
 
-A comprehensive web application for bands to efficiently schedule rehearsals, track attendance, send automated reminders, and suggest optimal rehearsal times based on member availability.
+A comprehensive web application for bands to efficiently manage their rehearsal schedules, track attendance, and organize setlists.
 
-## 🎵 Features
+## Features
 
-### Calendar Management
-- Shared calendar view for all band members
-- Add, edit, and delete rehearsal events
-- Block out unavailable dates/times
-- RSVP functionality for confirming attendance
+- **Interactive Calendar**: View and schedule rehearsals with an intuitive calendar interface
+- **Availability Tracking**: Log member availability to find optimal rehearsal times
+- **Smart Scheduling**: Get scheduling suggestions based on band members' availability
+- **Attendance Management**: Track who attended rehearsals with check-in features
+- **Setlist Builder**: Create and manage setlists for specific rehearsals
+- **Venue Management**: Store venue information and manage bookings
+- **Notifications**: Receive automated reminders about upcoming rehearsals
+- **Mobile Responsive**: Access from any device with a responsive design
 
-### Smart Scheduling
-- Algorithm to suggest optimal rehearsal times based on member availability
-- Polling system for finding consensus on rehearsal dates
-- Conflict detection to prevent double-booking
-
-### Communication
-- Automated email/SMS reminders for upcoming rehearsals
-- In-app messaging system for band communication
-- Comment threads on specific rehearsal events
-
-### Attendance Tracking
-- Check-in system for rehearsals
-- Attendance history and analytics
-- Absence notification system
-
-### Venue Management
-- Store and manage rehearsal locations
-- Link to maps/directions
-- Track venue availability
-
-### Set List Integration
-- Create and edit set lists for specific rehearsals
-- Track practiced songs and progress
-- Notes and feedback on song performance
-
-## 🚀 Technology Stack
+## Technology Stack
 
 ### Frontend
 - React.js with TypeScript
-- Redux for global state management
-- Material-UI for responsive design
-- FullCalendar.js for interactive calendar functionality
+- Redux with Redux Toolkit for state management
+- Material-UI for UI components
+- FullCalendar.js for calendar interface
 - Formik with Yup for form validation
-- Chart.js for attendance visualization
+- Axios for HTTP requests
+- Chart.js for data visualization
 
 ### Backend
 - Node.js with Express
-- RESTful API with OpenAPI/Swagger documentation
-- JWT with OAuth2 integration for social login
-- Prisma ORM
+- RESTful API with Swagger documentation
+- JWT authentication
+- Prisma ORM for database access
+- Express Validator for input validation
 
-### Database
-- PostgreSQL for relational data
+### Database & Infrastructure
+- PostgreSQL for primary database
 - Redis for caching
-
-### Infrastructure
-- AWS (EC2, ELB) or Vercel/Netlify for frontend
+- Docker and docker-compose for containerization
 - GitHub Actions for CI/CD
-- Sentry for error tracking
-- SendGrid for email, Twilio for SMS
 
-## 🛠️ Setup and Installation
+## Getting Started
 
 ### Prerequisites
-- Node.js v18+
+
+- Node.js (v18+)
 - npm or yarn
-- PostgreSQL 13+
-- Redis 6+
+- PostgreSQL (v13+)
+- Redis (optional, for production)
 
 ### Installation
 
-1. Clone the repository
-```bash
-git clone https://github.com/dxaginfo/bandpractice-scheduler-app-xj79.git
-cd bandpractice-scheduler-app-xj79
+1. Clone the repository:
+   ```
+   git clone https://github.com/dxaginfo/bandpractice-scheduler-app-xj79.git
+   cd bandpractice-scheduler-app-xj79
+   ```
+
+2. Install backend dependencies:
+   ```
+   cd backend
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```
+   cp .env.example .env
+   # Edit .env with your database credentials and JWT secret
+   ```
+
+4. Run database migrations:
+   ```
+   npm run migrate:deploy
+   ```
+
+5. Install frontend dependencies:
+   ```
+   cd ../frontend
+   npm install
+   ```
+
+### Development
+
+1. Start the backend server:
+   ```
+   # In the backend directory
+   npm run dev
+   ```
+
+2. Start the frontend development server:
+   ```
+   # In the frontend directory
+   npm start
+   ```
+
+3. Access the application at `http://localhost:3000`
+
+### Production Deployment
+
+1. Build the frontend:
+   ```
+   # In the frontend directory
+   npm run build
+   ```
+
+2. Build the backend:
+   ```
+   # In the backend directory
+   npm run build
+   ```
+
+3. Using Docker Compose:
+   ```
+   # In the root directory
+   docker-compose up -d
+   ```
+
+## Project Structure
+
 ```
-
-2. Install dependencies
-```bash
-# Install frontend dependencies
-cd frontend
-npm install
-
-# Install backend dependencies
-cd ../backend
-npm install
-```
-
-3. Set up environment variables
-```bash
-# Copy environment example files
-cp frontend/.env.example frontend/.env
-cp backend/.env.example backend/.env
-
-# Edit the .env files with your configuration
-```
-
-4. Set up the database
-```bash
-# Run migrations
-cd backend
-npm run migrate:dev
-```
-
-5. Start the development servers
-```bash
-# Start backend
-cd backend
-npm run dev
-
-# Start frontend (in a new terminal)
-cd frontend
-npm start
-```
-
-## 🏗️ Project Structure
-
-```
-.
-├── frontend                    # React frontend application
-│   ├── public                  # Static files
-│   └── src                     # Source code
-│       ├── components          # Reusable components
-│       ├── contexts            # React contexts
-│       ├── hooks               # Custom React hooks
-│       ├── pages               # Application pages
-│       ├── services            # API services
-│       ├── store               # Redux store configuration
-│       └── utils               # Utility functions
+├── backend/                # Node.js backend with Express
+│   ├── prisma/            # Database schema and migrations
+│   ├── src/               # Source files
+│   │   ├── controllers/   # Route controllers
+│   │   ├── middleware/    # Express middleware
+│   │   ├── routes/        # API routes
+│   │   └── server.ts      # Server entry point
+│   └── package.json       # Backend dependencies
 │
-├── backend                     # Node.js/Express backend
-│   ├── src                     # Source code
-│   │   ├── controllers         # Route controllers
-│   │   ├── middleware          # Express middlewares
-│   │   ├── models              # Data models
-│   │   ├── routes              # API routes
-│   │   └── services            # Business logic
-│   ├── prisma                  # Prisma schema and migrations
-│   └── tests                   # Tests
+├── frontend/              # React frontend
+│   ├── public/            # Static files
+│   ├── src/               # Source files
+│   │   ├── components/    # Reusable components
+│   │   ├── pages/         # Page components
+│   │   ├── store/         # Redux store setup
+│   │   └── App.tsx        # Main application component
+│   └── package.json       # Frontend dependencies
 │
-└── docs                        # Documentation
+├── docker-compose.yml     # Docker Compose configuration
+└── README.md              # Project documentation
 ```
 
-## 📝 API Documentation
+## API Documentation
 
-The API documentation is generated using Swagger and can be accessed at `http://localhost:5000/api-docs` when the backend server is running.
+API documentation is available at `/api-docs` when running the backend server.
 
-## 🧪 Testing
+## License
 
-```bash
-# Run frontend tests
-cd frontend
-npm test
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-# Run backend tests
-cd backend
-npm test
-```
+## Acknowledgments
 
-## 🚢 Deployment
-
-### Frontend Deployment
-1. Build the frontend
-```bash
-cd frontend
-npm run build
-```
-
-2. Deploy to Vercel/Netlify or AWS S3 + CloudFront
-
-### Backend Deployment
-1. Build the backend
-```bash
-cd backend
-npm run build
-```
-
-2. Deploy to AWS EC2 or similar service
-
-## 📱 Mobile Support
-
-The application is designed to be responsive and works well on mobile devices. It also includes Progressive Web App (PWA) capabilities for offline access.
-
-## 🔒 Security Considerations
-
-- HTTPS for all communications
-- JWT with secure token management
-- Password hashing with bcrypt
-- CSRF protection
-- Rate limiting to prevent brute force attacks
-- Regular security audits
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Support
-
-For support, email support@rehearsalscheduler.com or open an issue on GitHub.
+- [FullCalendar](https://fullcalendar.io/) for the calendar component
+- [Material-UI](https://mui.com/) for the UI components
+- [Prisma](https://www.prisma.io/) for the database ORM
