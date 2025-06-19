@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String       @id @default(uuid())
+  email           String       @unique
+  passwordHash    String
+  name            String
+  phone           String?
+  profileImageUrl String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  bandMembers     BandMember[]
+  rehearsals      Rehearsal[]  @relation("CreatedByUser")
+  setlists        SetList[]    @relation("CreatedByUser")
+  notifications   Notification[]
+}
+
+model Band {
+  id           String       @id @default(uuid())
+  name         String
+  description  String?
+  createdById  String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  members      BandMember[]
+  rehearsals   Rehearsal[]
+  songs        Song[]
+  schedulePolls SchedulePoll[]
+}
+
+model BandMember {
+  id           String        @id @default(uuid())
+  bandId       String
+  userId       String
+  role         String        // leader, member, admin
+  joinDate     DateTime      @default(now())
+  status       String        // active, inactive
+  band         Band          @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendances  Attendance[]
+  availability Availability[]
+  pollVotes    PollVote[]
+
+  @@unique([bandId, userId])
+}
+
+model Venue {
+  id           String       @id @default(uuid())
+  name         String
+  address      String?
+  city         String?
+  state        String?
+  zip          String?
+  country      String?
+  coordinates  String?      // Stored as "latitude,longitude"
+  notes        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  rehearsals   Rehearsal[]
+  pollOptions  PollOption[]
+}
+
+model Rehearsal {
+  id           String       @id @default(uuid())
+  bandId       String
+  venueId      String?
+  title        String
+  description  String?
+  startTime    DateTime
+  endTime      DateTime
+  status       String       // scheduled, canceled, completed
+  createdById  String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  band         Band         @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  venue        Venue?       @relation(fields: [venueId], references: [id])
+  createdBy    User         @relation("CreatedByUser", fields: [createdById], references: [id])
+  attendances  Attendance[]
+  setlists     SetList[]
+}
+
+model Attendance {
+  id            String       @id @default(uuid())
+  rehearsalId   String
+  bandMemberId  String
+  status        String       // confirmed, declined, pending, attended, absent
+  comment       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  rehearsal     Rehearsal    @relation(fields: [rehearsalId], references: [id], onDelete: Cascade)
+  bandMember    BandMember   @relation(fields: [bandMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([rehearsalId, bandMemberId])
+}
+
+model Availability {
+  id            String       @id @default(uuid())
+  bandMemberId  String
+  dayOfWeek     Int?         // 0-6 for Sunday-Saturday
+  startTime     DateTime
+  endTime       DateTime
+  recurrence    String       // weekly, biweekly, monthly, one-time
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  bandMember    BandMember   @relation(fields: [bandMemberId], references: [id], onDelete: Cascade)
+}
+
+model SchedulePoll {
+  id              String       @id @default(uuid())
+  bandId          String
+  title           String
+  description     String?
+  createdById     String
+  status          String       // open, closed
+  expirationDate  DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  band            Band         @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  options         PollOption[]
+}
+
+model PollOption {
+  id              String       @id @default(uuid())
+  pollId          String
+  startTime       DateTime
+  endTime         DateTime
+  venueId         String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  poll            SchedulePoll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  venue           Venue?       @relation(fields: [venueId], references: [id])
+  votes           PollVote[]
+}
+
+model PollVote {
+  id              String       @id @default(uuid())
+  optionId        String
+  bandMemberId    String
+  preferenceLevel Int          // 1-5, where 5 is highest preference
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  option          PollOption   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  bandMember      BandMember   @relation(fields: [bandMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([optionId, bandMemberId])
+}
+
+model Song {
+  id              String       @id @default(uuid())
+  bandId          String
+  title           String
+  artist          String?
+  duration        Int?         // Duration in seconds
+  notes           String?
+  status          String       // active, inactive
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  band            Band         @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  setListItems    SetListItem[]
+}
+
+model SetList {
+  id              String       @id @default(uuid())
+  rehearsalId     String?
+  name            String
+  notes           String?
+  createdById     String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  rehearsal       Rehearsal?   @relation(fields: [rehearsalId], references: [id])
+  createdBy       User         @relation("CreatedByUser", fields: [createdById], references: [id])
+  items           SetListItem[]
+}
+
+model SetListItem {
+  id              String       @id @default(uuid())
+  setlistId       String
+  songId          String
+  position        Int
+  notes           String?
+  status          String       // pending, practiced, skipped
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  setlist         SetList      @relation(fields: [setlistId], references: [id], onDelete: Cascade)
+  song            Song         @relation(fields: [songId], references: [id])
+}
+
+model Notification {
+  id              String       @id @default(uuid())
+  userId          String
+  type            String       // rehearsal_reminder, poll_created, etc.
+  content         String
+  isRead          Boolean      @default(false)
+  relatedId       String?      // ID of related entity (rehearsal, poll, etc.)
+  createdAt       DateTime     @default(now())
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
